@@ -20,7 +20,7 @@ reads by skipping unparseable files.
 | `sid` | string | yes | Claude Code `session_id`; also the file stem |
 | `state` | string | yes | one of `busy`, `perm`, `wait`, `done`, `idle` (see [State model](/state-model.md)) |
 | `cwd` | string | yes | session working directory; the project opened on key tap |
-| `title` | string | no | session name — the first user prompt, truncated to 70 chars |
+| `title` | string | no | session name - the first user prompt, truncated to 70 chars |
 | `pid` | number | yes | process id used for liveness (`kill -0`) |
 | `ts` | number | yes | Unix seconds of the last update |
 | `started` | number | no | Unix seconds of the current turn start; present only while `busy` |

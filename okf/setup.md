@@ -36,7 +36,7 @@ replacing it. Mapping is documented in [Hook helper](/hooks.md).
 osascript -e 'quit app "Elgato Stream Deck"'; sleep 3; open -a "Elgato Stream Deck"
 ```
 
-Then drag **Custom → Claude Code → Agent Session** onto keys.
+Then drag **Custom -> Claude Code -> Agent Session** onto keys.
 
 # Verify
 
@@ -45,5 +45,5 @@ Then drag **Custom → Claude Code → Agent Session** onto keys.
 ls ~/.claude/agent-status.d/     # a <session_id>.json file should appear
 ```
 
-If no file appears, the hooks are not firing — recheck `settings.json` and that
+If no file appears, the hooks are not firing - recheck `settings.json` and that
 `jq` is installed.

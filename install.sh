@@ -14,15 +14,15 @@ command -v node >/dev/null || { echo "Missing dependency: node (brew install nod
 command -v npm  >/dev/null || { echo "Missing dependency: npm"; exit 1; }
 [ -d "$SD_PLUGINS" ] || { echo "Stream Deck not found. Install Elgato Stream Deck first."; exit 1; }
 
-echo "▸ Installing status helper → $CLAUDE_DIR/agent-status.sh"
+echo "> Installing status helper -> $CLAUDE_DIR/agent-status.sh"
 mkdir -p "$CLAUDE_DIR"
 cp "$REPO/hooks/agent-status.sh" "$CLAUDE_DIR/agent-status.sh"
 chmod +x "$CLAUDE_DIR/agent-status.sh"
 
-echo "▸ Installing plugin dependencies (npm)"
+echo "> Installing plugin dependencies (npm)"
 ( cd "$PLUGIN_SRC" && npm install --silent --no-audit --no-fund )
 
-echo "▸ Linking plugin → Stream Deck"
+echo "> Linking plugin -> Stream Deck"
 LINK="$SD_PLUGINS/$PLUGIN_NAME"
 rm -rf "$LINK"
 ln -s "$PLUGIN_SRC" "$LINK"
@@ -36,7 +36,7 @@ Next steps:
      (merge into the "hooks" object; append to existing events instead of replacing them).
   2. Restart Stream Deck:
        osascript -e 'quit app "Elgato Stream Deck"'; sleep 3; open -a "Elgato Stream Deck"
-  3. In Stream Deck, drag  Custom → Claude Code → Agent Session  onto as many keys as you want.
+  3. In Stream Deck, drag  Custom -> Claude Code -> Agent Session  onto as many keys as you want.
 
-Then just use Claude Code (Zed or terminal) — a key lights up per active session.
+Then just use Claude Code (Zed or terminal) - a key lights up per active session.
 EOF

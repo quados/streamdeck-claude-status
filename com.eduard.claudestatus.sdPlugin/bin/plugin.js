@@ -9,16 +9,16 @@ const CLI   = "/Applications/Zed.app/Contents/MacOS/cli";
 const PORT  = 37800;             // localhost push endpoint (hooks POST here)
 const POLL  = 5000;              // backstop poll (ms)
 const BLINK = 700;               // attention-blink period (ms)
-const LONG  = 600;               // long-press threshold (ms) → dismiss key
+const LONG  = 600;               // long-press threshold (ms) -> dismiss key
 const STALE = 12 * 3600_000;     // dead-pid staleness backstop (ms)
 const IDLE  = 24 * 3600_000;     // hide non-busy sessions idle longer than this (ms)
 const STUCK = 20 * 60_000;       // hide "busy" with no tool activity longer than this (ms)
 
-// state → accent colour
+// state -> accent colour
 const COLOR = {
   busy: "#e0b000",   // working / thinking
-  perm: "#ff3b30",   // needs permission — blinks
-  wait: "#3b82f6",   // waiting for your input (idle) — blinks
+  perm: "#ff3b30",   // needs permission - blinks
+  wait: "#3b82f6",   // waiting for your input (idle) - blinks
   done: "#20a020",   // turn finished
   idle: "#8a8a8a",   // session started, no activity yet
 };
@@ -104,8 +104,8 @@ function alive(rec, file) {
 function visible(rec, file) {
   if (!alive(rec, file)) return false;
   const age = Date.now() - rec.ts * 1000;
-  if (rec.state === "busy") return age < STUCK;   // stuck/crashed mid-turn → hide (self-heals on next event)
-  return age < IDLE;                              // done/wait/perm/idle → 1-day window
+  if (rec.state === "busy") return age < STUCK;   // stuck/crashed mid-turn -> hide (self-heals on next event)
+  return age < IDLE;                              // done/wait/perm/idle -> 1-day window
 }
 
 function readSessions() {
@@ -190,7 +190,7 @@ streamDeck.actions.onKeyUp((ev) => {
   if (!k.longFired && k.cwd) openInZed(k.cwd);
 });
 
-// instant push: hooks POST here after writing state → repaint immediately.
+// instant push: hooks POST here after writing state -> repaint immediately.
 // exit on EADDRINUSE so a duplicate instance can't linger as a zombie.
 http.createServer((req, res) => { refresh(); res.statusCode = 204; res.end(); })
   .on("error", (e) => {

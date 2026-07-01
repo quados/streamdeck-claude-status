@@ -9,8 +9,8 @@ timestamp: 2026-07-01T00:00:00Z
 # Overview
 
 A Node plugin (built on `@elgato/streamdeck`) that watches the status directory
-and paints one key per session. It fills the keys the user placed, left→right /
-top→bottom, ordered by project path so a project keeps a stable slot.
+and paints one key per session. It fills the keys the user placed, left->right /
+top->bottom, ordered by project path so a project keeps a stable slot.
 
 # Behaviour
 

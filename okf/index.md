@@ -1,7 +1,7 @@
 ---
 okf_version: "0.1"
 ---
-# Claude Code Stream Deck — Knowledge Bundle
+# Claude Code Stream Deck - Knowledge Bundle
 
 An [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) description of the `streamdeck-claude-status` project: a bridge that surfaces live Claude Code session status on an Elgato Stream Deck.
 

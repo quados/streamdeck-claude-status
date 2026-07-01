@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code → Stream Deck status bridge.
+# Claude Code -> Stream Deck status bridge.
 # usage: agent-status.sh <busy|notify|perm|done|idle|end>   (reads hook event JSON on stdin)
 # Writes one file per session to ~/.claude/agent-status.d/<session_id>.json and pokes the plugin.
 dir="$HOME/.claude/agent-status.d"; mkdir -p "$dir"
@@ -13,7 +13,7 @@ file="$dir/$sid.json"
 state="$1"
 [ "$state" = "end" ] && { rm -f "$file"; nudge; exit 0; }
 
-# Notification fires both for permission prompts and 60s-idle → split by message.
+# Notification fires both for permission prompts and 60s-idle -> split by message.
 if [ "$state" = "notify" ]; then
   msg=$(jq -r '.message // empty' <<<"$json")
   case "$msg" in
@@ -37,7 +37,7 @@ if [ -z "$title" ]; then
   p=$(jq -r '.prompt // empty' <<<"$json" | tr '\n\t' '  ')
   case "$p" in
     "" ) ;;              # no prompt on this event
-    "<"* ) ;;            # injected block (<task-notification>, <system-reminder>, …) — not a real name
+    "<"* ) ;;            # injected block (<task-notification>, <system-reminder>, ...) - not a real name
     * ) title=$(printf '%s' "$p" | cut -c1-70) ;;
   esac
 fi
@@ -50,7 +50,7 @@ if [ "$state" = "busy" ]; then
   if [ "$prev_state" = "busy" ] && [ -n "$prev_started" ]; then started="$prev_started"; else started="$now"; fi
 fi
 
-# grandparent of this script ≈ the long-lived claude process (used for liveness)
+# grandparent of this script ~ the long-lived claude process (used for liveness)
 cpid=$(ps -o ppid= -p "$PPID" 2>/dev/null | tr -d ' '); : "${cpid:=$PPID}"
 
 jq -nc --arg s "$state" --arg cwd "$cwd" --arg title "$title" \

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Live view of Claude Code session status — useful for confirming which hooks
+# Live view of Claude Code session status - useful for confirming which hooks
 # fire in your setup (e.g. does a permission prompt in Zed produce state=perm?).
 # Run this, then use Claude Code and watch the states change.
 dir="$HOME/.claude/agent-status.d"

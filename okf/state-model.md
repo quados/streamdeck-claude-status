@@ -19,12 +19,12 @@ States in the attention set (`perm`, `wait`) blink by alternating the accent opa
 
 # Transitions
 
-* `SessionStart` → `idle`
-* `UserPromptSubmit` and `PreToolUse` → `busy`
-* `Notification` → `perm` if the message mentions permission, else `wait`
-* `PermissionRequest` → `perm`
-* `Stop` → `done`
-* `SessionEnd` → record deleted
+* `SessionStart` -> `idle`
+* `UserPromptSubmit` and `PreToolUse` -> `busy`
+* `Notification` -> `perm` if the message mentions permission, else `wait`
+* `PermissionRequest` -> `perm`
+* `Stop` -> `done`
+* `SessionEnd` -> record deleted
 
 See [Hook helper](/hooks.md) for how events map to helper arguments.
 
@@ -32,7 +32,7 @@ See [Hook helper](/hooks.md) for how events map to helper arguments.
 
 A record is shown only if its process is alive (or its file is recent) AND:
 
-* `busy` records are hidden after `STUCK` (default 20 min) with no tool activity — a crash/hang guard. `PreToolUse` refreshes the timestamp during a turn, so genuinely active sessions stay visible; hidden records self-heal when the next event arrives.
+* `busy` records are hidden after `STUCK` (default 20 min) with no tool activity - a crash/hang guard. `PreToolUse` refreshes the timestamp during a turn, so genuinely active sessions stay visible; hidden records self-heal when the next event arrives.
 * Non-busy records are hidden after `IDLE` (default 24 h) without an update.
 
 # Elapsed time
