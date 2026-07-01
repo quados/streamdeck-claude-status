@@ -8,7 +8,7 @@ Turn your Elgato Stream Deck into a live status board for [Claude Code](https://
 - **Tap** a key → open that project in Zed &nbsp;·&nbsp; **Hold** → dismiss the key
 - Keys that need your attention **blink**; each shows the **repo name**, **session name**, and **elapsed time**
 
-![platform: macOS](https://img.shields.io/badge/platform-macOS-lightgrey) ![license: MIT](https://img.shields.io/badge/license-MIT-blue)
+![CI](https://github.com/quados/streamdeck-claude-status/actions/workflows/ci.yml/badge.svg) ![platform: macOS](https://img.shields.io/badge/platform-macOS-lightgrey) ![license: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
@@ -73,7 +73,7 @@ Now use Claude Code — a key lights up per session.
 
 ## Usage
 
-- **Tap** a key — opens that session's project directory in Zed (`zed <cwd>`), focusing the window the session lives in.
+- **Tap** a key — opens that session's project directory in Zed (`zed <cwd>`), focusing the window the session lives in. Falls back to `open -a Zed` if the Zed CLI isn't installed.
 - **Hold** a key (~0.6 s) — dismisses it (deletes the status record). Use this after you archive/close a thread.
 - Sessions are ordered by project path, so a project keeps the same slot (muscle memory).
 
@@ -107,7 +107,8 @@ This repo ships an [Open Knowledge Format](https://github.com/GoogleCloudPlatfor
 ## Troubleshooting
 
 - **Keys stay blank** — hooks aren't firing. Confirm `~/.claude/agent-status.d/` gets files; check the hooks are in `settings.json`; make sure `jq` is installed.
-- **Tap does nothing** — Zed CLI isn't at the path in `CLI`. Install Zed's CLI (`zed` command palette → "cli: install") or edit the `CLI` constant.
+- **Tap does nothing** — Zed isn't installed, or its CLI isn't at the path in `CLI`. The plugin falls back to `open -a Zed`; make sure Zed.app exists, or edit the `CLI` constant.
+- **Debug which hooks fire** — run `./scripts/watch-status.sh` and use Claude Code; the live view shows each session's state changing (handy to confirm `perm`/`wait` trigger in your frontend).
 - **Plugin won't load** — after editing `plugin.js`, fully quit Stream Deck (wait ~5 s) *then* reopen; a quick quit+open can orphan the process. Logs: `com.eduard.claudestatus.sdPlugin/logs/`.
 - **A stale key won't clear** — hold it to dismiss, or `rm ~/.claude/agent-status.d/<session>.json`.
 

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax-check JavaScript
+        run: |
+          for f in $(git ls-files '*.js' '*.mjs'); do
+            echo "node --check $f"; node --check "$f"
+          done
+
+      - name: Syntax-check shell scripts
+        run: |
+          for f in $(git ls-files '*.sh'); do
+            echo "bash -n $f"; bash -n "$f"
+          done
+
+      - name: Validate JSON
+        run: |
+          for f in $(git ls-files '*.json'); do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" \
+              || { echo "invalid JSON: $f"; exit 1; }
+          done
+
+      - name: OKF v0.1 conformance
+        run: |
+          fail=0
+          for f in okf/*.md; do
+            case "$f" in okf/index.md|okf/log.md) continue;; esac
+            [ "$(head -1 "$f")" = "---" ] || { echo "no frontmatter: $f"; fail=1; continue; }
+            awk 'NR==1&&$0=="---"{b=1;next} b&&$0=="---"{exit} b&&/^type:[[:space:]]*[^[:space:]]/{ok=1} END{exit ok?0:1}' "$f" \
+              || { echo "missing/empty type: $f"; fail=1; }
+          done
+          [ $fail -eq 0 ] && echo "OKF conformant" || exit 1

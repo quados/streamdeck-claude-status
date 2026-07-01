@@ -1,6 +1,6 @@
 import streamDeck from "@elgato/streamdeck";
 import { execFile } from "node:child_process";
-import { readFileSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, unlinkSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
 import http from "node:http";
 
@@ -164,6 +164,13 @@ streamDeck.actions.onWillDisappear((ev) => {
   keys.delete(ev.action.id);
 });
 
+// open the project in Zed: prefer the Zed CLI, fall back to `open -a Zed` if it's not at CLI
+function openInZed(cwd) {
+  const viaApp = () => execFile("open", ["-a", "Zed", cwd], (e) => { if (e) streamDeck.logger.error(`open Zed failed: ${e}`); });
+  if (existsSync(CLI)) execFile(CLI, [cwd], (e) => { if (e) viaApp(); });
+  else viaApp();
+}
+
 // tap = open project in Zed; hold (>LONG ms) = dismiss this session's key
 streamDeck.actions.onKeyDown((ev) => {
   const k = keys.get(ev.action.id);
@@ -180,9 +187,7 @@ streamDeck.actions.onKeyUp((ev) => {
   const k = keys.get(ev.action.id);
   if (!k) return;
   clearTimeout(k.timer);
-  if (!k.longFired && k.cwd) {
-    execFile(CLI, [k.cwd], (err) => { if (err) streamDeck.logger.error(`zed open failed: ${err}`); });
-  }
+  if (!k.longFired && k.cwd) openInZed(k.cwd);
 });
 
 // instant push: hooks POST here after writing state → repaint immediately.
