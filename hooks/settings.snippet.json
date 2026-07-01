@@ -1,0 +1,12 @@
+{
+  "_comment": "Merge these entries into the \"hooks\" object of ~/.claude/settings.json. If an event already exists (e.g. you use other hooks), append the agent-status.sh command to that event's existing \"hooks\" array instead of replacing it.",
+  "hooks": {
+    "SessionStart":     [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh idle",   "timeout": 5 }] }],
+    "UserPromptSubmit": [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh busy",   "timeout": 5 }] }],
+    "PreToolUse":       [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh busy",   "timeout": 5 }] }],
+    "Notification":     [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh notify", "timeout": 5 }] }],
+    "PermissionRequest":[{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh perm",   "timeout": 5 }] }],
+    "Stop":             [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh done",   "timeout": 5 }] }],
+    "SessionEnd":       [{ "matcher": "", "hooks": [{ "type": "command", "command": "$HOME/.claude/agent-status.sh end",    "timeout": 5 }] }]
+  }
+}

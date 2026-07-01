@@ -1,0 +1,27 @@
+{
+  "name": "com.eduard.claudestatus",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Stream Deck plugin showing live Claude Code session status (Zed / terminal): key colour = state, tap = open the project in Zed, hold = dismiss.",
+  "main": "bin/plugin.js",
+  "author": "Eduard (@quados)",
+  "license": "MIT",
+  "homepage": "https://github.com/quados/streamdeck-claude-status",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quados/streamdeck-claude-status.git"
+  },
+  "keywords": [
+    "stream-deck",
+    "elgato",
+    "claude-code",
+    "claude",
+    "anthropic",
+    "zed",
+    "status",
+    "developer-tools"
+  ],
+  "dependencies": {
+    "@elgato/streamdeck": "^1.0.0"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Claude Code Status",
+  "Version": "1.0.0.0",
+  "Author": "eduard",
+  "Description": "One key per active Claude Code session. Color = state (working / waiting / done). Press = open that project in Zed.",
+  "Category": "Claude Code",
+  "CategoryIcon": "icons/plugin",
+  "Icon": "icons/plugin",
+  "URL": "https://github.com/quados/streamdeck-claude-status",
+  "SDKVersion": 2,
+  "CodePath": "bin/plugin.js",
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "Software": {
+    "MinimumVersion": "6.5"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    }
+  ],
+  "Actions": [
+    {
+      "Name": "Agent Session",
+      "UUID": "com.eduard.claudestatus.session",
+      "Icon": "icons/action",
+      "Tooltip": "Shows a live Claude Code session. Press to open it in Zed.",
+      "Controllers": ["Keypad"],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "icons/state",
+          "TitleAlignment": "bottom",
+          "FontSize": "10"
+        }
+      ]
+    }
+  ]
+}
