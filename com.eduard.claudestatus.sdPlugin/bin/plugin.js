@@ -83,9 +83,9 @@ function renderKey(rec, on = true) {
     `<rect x="1" y="1" width="70" height="70" rx="13" fill="url(#g)"/>` +
     `<text x="8" y="16" font-size="9" font-weight="700" fill="#f6f7f8" font-family="${FONT}">${esc(repo)}</text>` +
     body +
-    `<rect x="8" y="61" width="38" height="4" rx="2" fill="${color}" fill-opacity="${a}"/>` +
-    `<circle cx="52" cy="63" r="3.3" fill="${color}" fill-opacity="${a}"/>` +
-    (age ? `<text x="58" y="65.5" font-size="6.5" fill="#868b90" font-family="${FONT}">${age}</text>` : ""),
+    `<rect x="8" y="61" width="34" height="4" rx="2" fill="${color}" fill-opacity="${a}"/>` +
+    `<circle cx="48" cy="63" r="3.3" fill="${color}" fill-opacity="${a}"/>` +
+    (age ? `<text x="66" y="65.5" font-size="6.5" fill="#868b90" text-anchor="end" font-family="${FONT}">${age}</text>` : ""),
     color,
     0.22 * a
   );
