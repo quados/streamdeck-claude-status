@@ -44,3 +44,6 @@ jobs:
               || { echo "missing/empty type: $f"; fail=1; }
           done
           [ $fail -eq 0 ] && echo "OKF conformant" || exit 1
+
+      - name: No AI-style typography
+        run: node scripts/check-ascii.mjs
