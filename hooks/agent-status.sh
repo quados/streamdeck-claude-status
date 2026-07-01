@@ -35,7 +35,11 @@ fi
 # session name = first user prompt (stable identity for the key)
 if [ -z "$title" ]; then
   p=$(jq -r '.prompt // empty' <<<"$json" | tr '\n\t' '  ')
-  [ -n "$p" ] && title=$(printf '%s' "$p" | cut -c1-70)
+  case "$p" in
+    "" ) ;;              # no prompt on this event
+    "<"* ) ;;            # injected block (<task-notification>, <system-reminder>, …) — not a real name
+    * ) title=$(printf '%s' "$p" | cut -c1-70) ;;
+  esac
 fi
 
 now=$(date +%s)
