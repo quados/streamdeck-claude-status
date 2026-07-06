@@ -5,7 +5,7 @@ import { homedir } from "node:os";
 import http from "node:http";
 
 const DIR   = `${homedir()}/.claude/agent-status.d`;   // per-session status files
-const CLI   = "/Applications/Zed.app/Contents/MacOS/cli";
+const ZED_CLI = "/Applications/Zed.app/Contents/MacOS/cli";
 const PORT  = 37800;             // localhost push endpoint (hooks POST here)
 const POLL  = 5000;              // backstop poll (ms)
 const BLINK = 700;               // attention-blink period (ms)
@@ -167,11 +167,24 @@ streamDeck.actions.onWillDisappear((ev) => {
 // open the project in Zed: prefer the Zed CLI, fall back to `open -a Zed` if it's not at CLI
 function openInZed(cwd) {
   const viaApp = () => execFile("open", ["-a", "Zed", cwd], (e) => { if (e) streamDeck.logger.error(`open Zed failed: ${e}`); });
-  if (existsSync(CLI)) execFile(CLI, [cwd], (e) => { if (e) viaApp(); });
+  if (existsSync(ZED_CLI)) execFile(ZED_CLI, [cwd], (e) => { if (e) viaApp(); });
   else viaApp();
 }
 
-// tap = open project in Zed; hold (>LONG ms) = dismiss this session's key
+// Jean is a session manager, not a folder opener, and exposes no deep-link, so
+// the best we can do is bring the app to the front (the session already lives inside it).
+function openInJean() {
+  execFile("open", ["-a", "Jean"], (e) => { if (e) streamDeck.logger.error(`open Jean failed: ${e}`); });
+}
+
+// route a tap to the app that launched the session (host is set by the hook)
+function openSession(rec) {
+  if (rec.host === "jean") openInJean();
+  else if (rec.cwd) openInZed(rec.cwd);
+}
+
+// tap = open the session (Zed for terminal/Zed sessions, Jean for Jean sessions);
+// hold (>LONG ms) = dismiss this session's key
 streamDeck.actions.onKeyDown((ev) => {
   const k = keys.get(ev.action.id);
   if (!k) return;
@@ -187,7 +200,7 @@ streamDeck.actions.onKeyUp((ev) => {
   const k = keys.get(ev.action.id);
   if (!k) return;
   clearTimeout(k.timer);
-  if (!k.longFired && k.cwd) openInZed(k.cwd);
+  if (!k.longFired && k.rec) openSession(k.rec);
 });
 
 // instant push: hooks POST here after writing state -> repaint immediately.

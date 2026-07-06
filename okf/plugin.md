@@ -18,7 +18,9 @@ top->bottom, ordered by project path so a project keeps a stable slot.
   [helper](/hooks.md)) plus a 5 s backstop poll that also advances elapsed timers.
 * **Blink**: attention states (`perm`, `wait`) repaint every 700 ms alternating
   accent opacity. See [State model](/state-model.md).
-* **Tap**: opens the session's `cwd` in Zed via the Zed CLI.
+* **Tap**: opens the session in its launching app (the record's `host`). Jean
+  sessions (`host: "jean"`) foreground the Jean app via `open -a Jean`; all other
+  sessions open the `cwd` in Zed via the Zed CLI. See [status file](/status-file.md).
 * **Hold** (~600 ms): deletes the [status file](/status-file.md), dismissing the key.
 * **Duplicate guard**: if the push port is already bound, the instance exits so
   no zombie plugin lingers.
@@ -32,4 +34,4 @@ colour, over a subtle state-tinted gradient.
 # Configuration
 
 Tunable constants at the top of `bin/plugin.js`: `COLOR`, `ATTENTION`, `IDLE`,
-`STUCK`, `BLINK`, `LONG`, `PORT`, `CLI`. See the [setup playbook](/setup.md).
+`STUCK`, `BLINK`, `LONG`, `PORT`, `ZED_CLI`. See the [setup playbook](/setup.md).
