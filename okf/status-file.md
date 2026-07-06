@@ -21,6 +21,7 @@ reads by skipping unparseable files.
 | `state` | string | yes | one of `busy`, `perm`, `wait`, `done`, `idle` (see [State model](/state-model.md)) |
 | `cwd` | string | yes | session working directory; the project opened on key tap |
 | `title` | string | no | session name - the first user prompt, truncated to 70 chars |
+| `host` | string | no | launching app; `jean` when the session runs under Jean (detected via `JEAN_SESSION_ID`), absent otherwise. Sets the tap-to-open target: `jean` foregrounds the Jean app, anything else opens `cwd` in Zed |
 | `pid` | number | yes | process id used for liveness (`kill -0`) |
 | `ts` | number | yes | Unix seconds of the last update |
 | `started` | number | no | Unix seconds of the current turn start; present only while `busy` |
@@ -33,6 +34,7 @@ reads by skipping unparseable files.
   "state": "busy",
   "cwd": "/Users/me/Repos/email-trackerino",
   "title": "add retry logic to the webhook consumer",
+  "host": "jean",
   "pid": 78145,
   "ts": 1782900063,
   "started": 1782899938

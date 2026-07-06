@@ -30,6 +30,8 @@ then POSTs `127.0.0.1:37800` to nudge the [plugin](/plugin.md).
 * Preserve the session `title` (first prompt) across later events.
 * Maintain `started` for turn-duration elapsed while `busy`.
 * Capture a liveness pid (grandparent of the hook shell ~ the claude process).
+* Tag `host: "jean"` when `JEAN_SESSION_ID` is in the environment (Jean exports it
+  into the session), so the plugin opens the right app on tap; omitted otherwise.
 
 # Configuration
 

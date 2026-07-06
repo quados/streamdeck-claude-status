@@ -1,11 +1,11 @@
 # Claude Code status on your Stream Deck
 
-Turn your Elgato Stream Deck into a live status board for [Claude Code](https://claude.com/claude-code) sessions running in **Zed** or a **terminal**. One key per active session - the colour tells you what each agent is doing at a glance, and a tap jumps you straight to that project in Zed.
+Turn your Elgato Stream Deck into a live status board for [Claude Code](https://claude.com/claude-code) sessions running in **Zed**, **[Jean](https://jean.build)**, or a **terminal**. One key per active session - the colour tells you what each agent is doing at a glance, and a tap jumps you straight to that session (opens the project in Zed, or brings Jean to the front).
 
 ![Stream Deck keys showing Claude Code session states](assets/keys.png)
 
 - 🟡 **working** - 🔴 **needs you** (permission) - 🔵 **waiting** (idle) - 🟢 **done** - ⚪ **idle**
-- **Tap** a key -> open that project in Zed  -  **Hold** -> dismiss the key
+- **Tap** a key -> open that session (project in Zed, or the Jean app)  -  **Hold** -> dismiss the key
 - Keys that need your attention **blink**; each shows the **repo name**, **session name**, and **elapsed time**
 
 ![CI](https://github.com/quados/streamdeck-claude-status/actions/workflows/ci.yml/badge.svg) ![platform: macOS](https://img.shields.io/badge/platform-macOS-lightgrey) ![license: MIT](https://img.shields.io/badge/license-MIT-blue)
@@ -19,7 +19,7 @@ When you run several coding agents at once, you lose track of which one is think
 ## How it works
 
 ```
-Claude Code (Zed / terminal)
+Claude Code (Zed / Jean / terminal)
         |  lifecycle hooks (SessionStart, UserPromptSubmit, PreToolUse,
         |  Notification, PermissionRequest, Stop, SessionEnd)
         v
@@ -30,8 +30,8 @@ Stream Deck plugin  --reads status dir, paints one key per session-->  🎛️
 ```
 
 - **Hooks** fire on Claude Code lifecycle events and run a small shell helper.
-- The **helper** writes one JSON file per session (state, cwd, session name, pid, timestamps).
-- The **plugin** watches that directory (push + 5 s backstop poll), maps live sessions onto the keys you placed, and renders each one. Tap opens the project in Zed; hold deletes the record.
+- The **helper** writes one JSON file per session (state, cwd, session name, pid, timestamps, host).
+- The **plugin** watches that directory (push + 5 s backstop poll), maps live sessions onto the keys you placed, and renders each one. Tap opens the session (project in Zed, or the Jean app for Jean sessions); hold deletes the record.
 
 ## States
 
@@ -50,7 +50,7 @@ The session name is the **first prompt** you sent in that session. Elapsed time 
 - macOS + [Elgato Stream Deck app](https://www.elgato.com/stream-deck)
 - [Claude Code](https://claude.com/claude-code)
 - [`jq`](https://jqlang.github.io/jq/) and Node.js (`brew install jq node`)
-- [Zed](https://zed.dev) (optional - only needed for the tap-to-open feature)
+- [Zed](https://zed.dev) and/or [Jean](https://jean.build) (optional - only needed for the tap-to-open feature; each session opens in whichever launched it)
 
 ## Install
 
@@ -73,7 +73,7 @@ Now use Claude Code - a key lights up per session.
 
 ## Usage
 
-- **Tap** a key - opens that session's project directory in Zed (`zed <cwd>`), focusing the window the session lives in. Falls back to `open -a Zed` if the Zed CLI isn't installed.
+- **Tap** a key - opens that session in the app that launched it. Zed/terminal sessions open the project directory in Zed (`zed <cwd>`, falling back to `open -a Zed`); Jean sessions bring the Jean app to the front (Jean has no folder deep-link, and the session already lives inside the app).
 - **Hold** a key (~0.6 s) - dismisses it (deletes the status record). Use this after you archive/close a thread.
 - Sessions are ordered by project path, so a project keeps the same slot (muscle memory).
 
@@ -90,11 +90,11 @@ All knobs are constants at the top of [`com.eduard.claudestatus.sdPlugin/bin/plu
 | `BLINK` | 700 ms | blink period |
 | `LONG` | 600 ms | long-press threshold to dismiss |
 | `PORT` | 37800 | localhost push port (must match the helper) |
-| `CLI` | Zed CLI path | binary run on tap |
+| `ZED_CLI` | Zed CLI path | binary run on tap for Zed/terminal sessions |
 
 ## Works with
 
-Hooks fire for **any** Claude Code frontend - Zed's ACP integration, the terminal CLI, etc. To confirm hooks fire in your setup, run a prompt and check that a file appears:
+Hooks fire for **any** Claude Code frontend - Zed's ACP integration, the [Jean](https://jean.build) desktop app, the terminal CLI, etc. Jean sessions are detected automatically (Jean exports `JEAN_SESSION_ID` into the session), so their keys open Jean on tap. To confirm hooks fire in your setup, run a prompt and check that a file appears:
 
 ```bash
 ls ~/.claude/agent-status.d/
@@ -107,7 +107,7 @@ This repo ships an [Open Knowledge Format](https://github.com/GoogleCloudPlatfor
 ## Troubleshooting
 
 - **Keys stay blank** - hooks aren't firing. Confirm `~/.claude/agent-status.d/` gets files; check the hooks are in `settings.json`; make sure `jq` is installed.
-- **Tap does nothing** - Zed isn't installed, or its CLI isn't at the path in `CLI`. The plugin falls back to `open -a Zed`; make sure Zed.app exists, or edit the `CLI` constant.
+- **Tap does nothing** - for Zed/terminal sessions, Zed isn't installed or its CLI isn't at the path in `ZED_CLI` (the plugin falls back to `open -a Zed`; make sure Zed.app exists, or edit `ZED_CLI`). For Jean sessions, make sure Jean.app is named `Jean` (the plugin runs `open -a Jean`).
 - **Debug which hooks fire** - run `./scripts/watch-status.sh` and use Claude Code; the live view shows each session's state changing (handy to confirm `perm`/`wait` trigger in your frontend).
 - **Plugin won't load** - after editing `plugin.js`, fully quit Stream Deck (wait ~5 s) *then* reopen; a quick quit+open can orphan the process. Logs: `com.eduard.claudestatus.sdPlugin/logs/`.
 - **A stale key won't clear** - hold it to dismiss, or `rm ~/.claude/agent-status.d/<session>.json`.

@@ -24,6 +24,10 @@ fi
 
 cwd=$(jq -r '.cwd // empty' <<<"$json")
 
+# host = which app launched this Claude Code session; drives tap-to-open target.
+# Jean exports JEAN_SESSION_ID into the session env; anything else opens in Zed.
+host=""; [ -n "$JEAN_SESSION_ID" ] && host="jean"
+
 # preserve session name + turn-start time across events
 prev_state=""; prev_started=""; title=""
 if [ -f "$file" ]; then
@@ -53,8 +57,9 @@ fi
 # grandparent of this script ~ the long-lived claude process (used for liveness)
 cpid=$(ps -o ppid= -p "$PPID" 2>/dev/null | tr -d ' '); : "${cpid:=$PPID}"
 
-jq -nc --arg s "$state" --arg cwd "$cwd" --arg title "$title" \
+jq -nc --arg s "$state" --arg cwd "$cwd" --arg title "$title" --arg host "$host" \
        --argjson pid "${cpid:-0}" --arg sid "$sid" --argjson ts "$now" --arg started "$started" \
   '{state:$s,cwd:$cwd,title:$title,pid:$pid,ts:$ts,sid:$sid}
+   + (if $host==""    then {} else {host:$host}                 end)
    + (if $started=="" then {} else {started:($started|tonumber)} end)' > "$file"
 nudge
