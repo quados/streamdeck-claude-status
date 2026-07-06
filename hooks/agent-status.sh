@@ -11,7 +11,13 @@ sid=$(jq -r '.session_id // empty' <<<"$json"); [ -z "$sid" ] && exit 0
 file="$dir/$sid.json"
 
 state="$1"
-[ "$state" = "end" ] && { rm -f "$file"; nudge; exit 0; }
+# Jean respawns the Claude CLI once per turn, so SessionEnd fires after every
+# answer - not when the user is done. Deleting the file there makes a finished
+# session flash green and vanish. For Jean, keep the key as a finished (done)
+# session; only real hosts (Zed/terminal, long-lived process) delete on end.
+if [ "$state" = "end" ]; then
+  if [ -n "$JEAN_SESSION_ID" ]; then state="done"; else rm -f "$file"; nudge; exit 0; fi
+fi
 
 # Notification fires both for permission prompts and 60s-idle -> split by message.
 if [ "$state" = "notify" ]; then

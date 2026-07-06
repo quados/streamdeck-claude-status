@@ -22,7 +22,7 @@ then POSTs `127.0.0.1:37800` to nudge the [plugin](/plugin.md).
 | `Notification` | `notify` | `perm` or `wait`, decided by the message text |
 | `PermissionRequest` | `perm` | `perm` |
 | `Stop` | `done` | `done` |
-| `SessionEnd` | `end` | record deleted |
+| `SessionEnd` | `end` | record deleted - except Jean, which respawns the CLI per turn, so its record is kept as `done` (dismiss with a long-press) |
 
 # Responsibilities
 
@@ -32,6 +32,9 @@ then POSTs `127.0.0.1:37800` to nudge the [plugin](/plugin.md).
 * Capture a liveness pid (grandparent of the hook shell ~ the claude process).
 * Tag `host: "jean"` when `JEAN_SESSION_ID` is in the environment (Jean exports it
   into the session), so the plugin opens the right app on tap; omitted otherwise.
+* Keep Jean records on `SessionEnd` (rewrite to `done`): Jean starts a fresh CLI
+  process per turn, so `SessionEnd` fires after every answer, not when the user is
+  done - deleting there would make a finished session flash green and vanish.
 
 # Configuration
 
