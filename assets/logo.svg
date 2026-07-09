@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Claude Code status on Stream Deck">
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2a30"/>
+      <stop offset="1" stop-color="#141416"/>
+    </linearGradient>
+    <linearGradient id="key" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#37373d"/>
+      <stop offset="1" stop-color="#232327"/>
+    </linearGradient>
+  </defs>
+
+  <!-- device body -->
+  <rect x="32" y="32" width="448" height="448" rx="76" fill="url(#panel)" stroke="#000000" stroke-opacity="0.35" stroke-width="2"/>
+
+  <!-- ============ top-left key: BUSY (amber) + Claude spark ============ -->
+  <g>
+    <rect x="76" y="76" width="165" height="165" rx="30" fill="url(#key)" stroke="#ffffff" stroke-opacity="0.05"/>
+    <circle cx="158.5" cy="150" r="66" fill="#e0b000" opacity="0.16"/>
+    <g transform="translate(158.5,150)" fill="#e0b000">
+      <path d="M0,-48 Q9,-9 48,0 Q9,9 0,48 Q-9,9 -48,0 Q-9,-9 0,-48 Z"/>
+      <path d="M31,-31 Q35,-14 52,-18 Q35,-14 39,3 Q35,-14 18,-10 Q35,-14 31,-31 Z" opacity="0.9"/>
+    </g>
+    <rect x="123.5" y="215" width="70" height="8" rx="4" fill="#e0b000"/>
+  </g>
+
+  <!-- ============ top-right key: WAIT (blue) chat bubble ============ -->
+  <g>
+    <rect x="271" y="76" width="165" height="165" rx="30" fill="url(#key)" stroke="#ffffff" stroke-opacity="0.05"/>
+    <circle cx="353.5" cy="150" r="66" fill="#3b82f6" opacity="0.16"/>
+    <g transform="translate(353.5,148)">
+      <path d="M-40,-30 h80 a14,14 0 0 1 14,14 v34 a14,14 0 0 1 -14,14 h-46 l-22,20 v-20 h-12 a14,14 0 0 1 -14,-14 v-34 a14,14 0 0 1 14,-14 Z" fill="#3b82f6"/>
+      <circle cx="-18" cy="3" r="6" fill="#141416"/>
+      <circle cx="2" cy="3" r="6" fill="#141416"/>
+      <circle cx="22" cy="3" r="6" fill="#141416"/>
+    </g>
+    <rect x="318.5" y="215" width="70" height="8" rx="4" fill="#3b82f6"/>
+  </g>
+
+  <!-- ============ bottom-left key: PERM (red) padlock ============ -->
+  <g>
+    <rect x="76" y="271" width="165" height="165" rx="30" fill="url(#key)" stroke="#ffffff" stroke-opacity="0.05"/>
+    <circle cx="158.5" cy="345" r="66" fill="#ff3b30" opacity="0.16"/>
+    <g transform="translate(158.5,345)">
+      <path d="M-20,-16 v-12 a20,20 0 0 1 40,0 v12" fill="none" stroke="#ff3b30" stroke-width="12" stroke-linecap="round"/>
+      <rect x="-34" y="-16" width="68" height="56" rx="13" fill="#ff3b30"/>
+      <circle cx="0" cy="6" r="7" fill="#141416"/>
+      <rect x="-4" y="6" width="8" height="18" rx="4" fill="#141416"/>
+    </g>
+    <rect x="123.5" y="410" width="70" height="8" rx="4" fill="#ff3b30"/>
+  </g>
+
+  <!-- ============ bottom-right key: DONE (green) check ============ -->
+  <g>
+    <rect x="271" y="271" width="165" height="165" rx="30" fill="url(#key)" stroke="#ffffff" stroke-opacity="0.05"/>
+    <circle cx="353.5" cy="345" r="66" fill="#20a020" opacity="0.16"/>
+    <path d="M323,347 l22,24 l42,-50" fill="none" stroke="#20a020" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="318.5" y="410" width="70" height="8" rx="4" fill="#20a020"/>
+  </g>
+</svg>
