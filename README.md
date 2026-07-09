@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Claude Code status on Stream Deck logo" width="168">
+</p>
+
 # Claude Code status on your Stream Deck
 
 Turn your Elgato Stream Deck into a live status board for [Claude Code](https://claude.com/claude-code) sessions running in **Zed**, **[Jean](https://jean.build)**, or a **terminal**. One key per active session - the colour tells you what each agent is doing at a glance, and a tap jumps you straight to that session (opens the project in Zed, or brings Jean to the front).
