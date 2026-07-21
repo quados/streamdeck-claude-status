@@ -37,6 +37,16 @@ Stream Deck plugin  --reads status dir, paints one key per session-->  🎛️
 - The **helper** writes one JSON file per session (state, cwd, session name, pid, timestamps, host).
 - The **plugin** watches that directory (push + 5 s backstop poll), maps live sessions onto the keys you placed, and renders each one. Tap opens the session (project in Zed, or the Jean app for Jean sessions); hold deletes the record.
 
+### Jean: local **and** server sessions
+
+The hook path above only reaches sessions whose Claude process runs on the same machine as the Stream Deck (local Jean, Zed, terminal). When Jean runs in **server mode**, Claude runs on a remote machine, so its hooks write to the *server's* disk - the local plugin never sees those files.
+
+To cover both, the plugin also reads Jean's own local session store (`com.jean.desktop/sessions/data/<id>/metadata.json`), which Jean keeps in sync on your machine regardless of where compute runs (it's what the Jean UI renders from). So Jean sessions - local or server - appear on the keys with no server-side setup. When the store is present it is the source of truth for Jean sessions; the hook still drives terminal/Zed sessions.
+
+- State is derived from the session metadata: a `running` run -> 🟡 busy, `waiting_for_input` -> 🔵 wait, pending permission/approval requests -> 🔴 perm, a finished run -> 🟢 done, no runs yet -> ⚪ idle.
+- Hold-to-dismiss a Jean key only hides it (it returns on the session's next activity) - it never deletes Jean's data.
+- Path is the platform default (`~/Library/Application Support/com.jean.desktop` on macOS, `$XDG_DATA_HOME/com.jean.desktop` on Linux); override with `JEAN_DATA_DIR`.
+
 ## States
 
 | Key | State | Fired by | Blinks |

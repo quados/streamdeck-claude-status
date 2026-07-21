@@ -5,6 +5,13 @@ import { homedir } from "node:os";
 import http from "node:http";
 
 const DIR   = `${homedir()}/.claude/agent-status.d`;   // per-session status files
+// Jean's own session store. Hooks only reach agent-status.d for sessions whose
+// Claude process runs on THIS machine (local Jean, Zed, terminal). Server-mode
+// Jean runs Claude on a remote box, so its hooks write to the server's disk and
+// the local plugin never sees them. Jean keeps live per-session state locally
+// (the desktop UI renders from it) regardless of where compute runs, so we read
+// that store directly to cover both local and server Jean sessions.
+const JEAN_DATA = jeanDataDir();
 const ZED_CLI = "/Applications/Zed.app/Contents/MacOS/cli";
 const PORT  = 37800;             // localhost push endpoint (hooks POST here)
 const POLL  = 5000;              // backstop poll (ms)
@@ -108,18 +115,104 @@ function visible(rec, file) {
   return age < IDLE;                              // done/wait/perm/idle -> 1-day window
 }
 
-function readSessions() {
-  let files;
-  try { files = readdirSync(DIR); } catch { return []; }
+// Locate Jean's desktop data dir (platform default, overridable). Returns null
+// if Jean isn't installed here - then we fall back to the hook-only path.
+function jeanDataDir() {
+  if (process.env.JEAN_DATA_DIR) return process.env.JEAN_DATA_DIR;
+  const home = homedir();
+  const xdg = process.env.XDG_DATA_HOME || `${home}/.local/share`;
+  const candidates = [
+    `${home}/Library/Application Support/com.jean.desktop`,   // macOS
+    `${xdg}/com.jean.desktop`,                                // Linux
+  ];
+  for (const c of candidates) {
+    try { if (statSync(`${c}/sessions/data`).isDirectory()) return c; } catch { /* next */ }
+  }
+  return null;
+}
+
+// worktree_id -> checkout path, so a Jean session maps to a repo/cwd for the key.
+function jeanWorktreePaths() {
+  const map = new Map();
+  try {
+    const j = JSON.parse(readFileSync(`${JEAN_DATA}/projects.json`, "utf8"));
+    for (const w of j.worktrees || []) if (w.id) map.set(w.id, w.path);
+  } catch { /* no projects file yet */ }
+  return map;
+}
+
+// Map Jean session metadata onto the same state vocabulary the hook uses.
+function jeanState(md) {
+  const pendingPerm = [
+    md.pending_permission_denials,
+    md.pending_codex_permission_requests,
+    md.pending_codex_command_approval_requests,
+    md.pending_codex_mcp_elicitation_requests,
+    md.pending_codex_dynamic_tool_call_requests,
+  ].some((a) => Array.isArray(a) && a.length);
+  if (pendingPerm) return "perm";
+  if (md.waiting_for_input ||
+      (Array.isArray(md.pending_codex_user_input_requests) && md.pending_codex_user_input_requests.length))
+    return "wait";
+  const runs = md.runs || [];
+  const last = runs[runs.length - 1];
+  if (!last) return "idle";                                    // session created, never run
+  if (last.status === "running" && !last.cancelled) return "busy";
+  return "done";                                               // completed/cancelled/error/resumable
+}
+
+function readJeanSessions() {
+  if (!JEAN_DATA) return [];
+  const dataDir = `${JEAN_DATA}/sessions/data`;
+  let ids;
+  try { ids = readdirSync(dataDir); } catch { return []; }
+  const wt = jeanWorktreePaths();
   const out = [];
+  for (const id of ids) {
+    const mdPath = `${dataDir}/${id}/metadata.json`;
+    let md, mtime;
+    try {
+      md = JSON.parse(readFileSync(mdPath, "utf8"));
+      mtime = Math.floor(statSync(mdPath).mtimeMs / 1000);
+    } catch { continue; }                                      // no/partial metadata
+    const state = jeanState(md);
+    const runs = md.runs || [];
+    const last = runs[runs.length - 1];
+    // ts = last local update (recency); started = turn start for busy elapsed.
+    const rec = {
+      sid: id, title: md.name || "", cwd: wt.get(md.worktree_id) || "",
+      host: "jean", state, ts: mtime,
+    };
+    if (state === "busy" && last?.started_at) rec.started = last.started_at;
+    // No usable pid across machines (server-mode pid is remote), so gate purely
+    // on recency - same windows the hook path uses.
+    const age = Date.now() - rec.ts * 1000;
+    if (state === "busy" ? age >= STUCK : age >= IDLE) continue;
+    const d = dismissed.get(id);
+    if (d != null && rec.ts <= d) continue;                    // held-to-dismiss, until new activity
+    out.push(rec);
+  }
+  return out;
+}
+
+function readSessions() {
+  const jean = readJeanSessions();
+  const out = [];
+  let files;
+  try { files = readdirSync(DIR); } catch { files = []; }
   for (const f of files) {
     if (!f.endsWith(".json")) continue;
     const p = `${DIR}/${f}`;
     try {
       const rec = JSON.parse(readFileSync(p, "utf8"));
+      // When Jean's store is available it is the source of truth for Jean
+      // sessions (covers server mode too); ignore the hook's Jean records to
+      // avoid double keys. Terminal/Zed sessions still come from the hook.
+      if (JEAN_DATA && rec.host === "jean") continue;
       if (rec.sid && visible(rec, p)) out.push(rec);
     } catch { /* skip malformed/partial write */ }
   }
+  out.push(...jean);
   return out.sort(
     (a, b) => (a.cwd || "").localeCompare(b.cwd || "") || a.sid.localeCompare(b.sid)
   );
@@ -127,6 +220,9 @@ function readSessions() {
 
 // action.id -> { action, col, row, cwd, sid, rec, timer, longFired }
 const keys = new Map();
+// Jean records are backed by Jean's own store, not files we may delete. A hold
+// hides them transiently: sid -> ts at dismiss; the key returns on newer activity.
+const dismissed = new Map();
 let blinkOn = true;
 
 function paint(slot, rec) {
@@ -191,7 +287,10 @@ streamDeck.actions.onKeyDown((ev) => {
   k.longFired = false;
   k.timer = setTimeout(() => {
     k.longFired = true;
-    if (k.sid) { try { unlinkSync(`${DIR}/${k.sid}.json`); } catch { /* already gone */ } }
+    if (k.sid) {
+      if (k.rec?.host === "jean") dismissed.set(k.sid, k.rec.ts);      // hide, keep Jean's data
+      else { try { unlinkSync(`${DIR}/${k.sid}.json`); } catch { /* already gone */ } }
+    }
     refresh();
   }, LONG);
 });
